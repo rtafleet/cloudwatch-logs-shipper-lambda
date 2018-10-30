@@ -44,6 +44,19 @@ def _parse_cloudwatch_log(log, aws_logs_data, log_type):
             json_object = json.loads(log['message'])
             for key, value in json_object.items():
                 log[key] = value
+        if os.environ['FORMAT'].lower() == 'syserr':
+            parts = log['message'].split('\t')
+
+            cols = []
+            if len(parts) == 12:
+                cols = ["Date","Time","File Name","Status","Program","OS User","RTA User","Station","Runtime","Called By","OS","ErrorMessage",""]
+            if len(parts) == 13:
+                # this is to account for additional columns later
+                cols = ["Date","Time","File Name","Status","Program","Machine","OS User","Serial Number", "RTA User","Station","Runtime","Called By","OS","ErrorMessage",""]
+            if len(cols) > 0:    
+                for i in range(len(parts)):
+                    log[cols[i]] = parts[i]
+
     except (KeyError, ValueError):
         pass
 
